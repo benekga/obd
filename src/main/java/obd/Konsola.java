@@ -9,8 +9,9 @@ public class Konsola {
     }
 
     public static void setSQLinsert(char rodzajOceny, int idNauczyciela, int idPrzedmiotu, int idUcznia, int idOceny) {
-        Konsola.SQLinsert = "insert into OCENIANIE values('"+rodzajOceny+"',"+idNauczyciela +","+idPrzedmiotu +"," +idUcznia +"," + idOceny+")";
+       SQLinsert = "insert into OCENIANIE values('" + rodzajOceny + "'," + idNauczyciela + "," + idPrzedmiotu + "," + idUcznia + "," + idOceny + ")";
     }
+
 
     public static void konsola() {
         Scanner myObject = new Scanner(System.in);
@@ -27,10 +28,18 @@ public class Konsola {
         int idOceny = myObject.nextInt();
 
         setSQLinsert(rodzajOceny, idNauczyciela, idPrzedmiotu, idUcznia, idOceny);
-
-        System.out.println(SQLinsert);
+        //System.out.println(SQLinsert);
     }
 
+    public static void konsolaRodzajOceny() {
+        Scanner myObject = new Scanner(System.in);
+        System.out.println("\nWprowadź rodzaj oceny ('C' lub 'S')");
+        char rodzajOceny = myObject.next().charAt(0);
+
+
 }
+}
+
+
 
 
