@@ -1,5 +1,5 @@
 package obd;
-public class SetUpDBContstraintsON {
+public class SetUpDBwithConstraints {
     static String SQLcreateNauczyciel = "create table NAUCZYCIEL (id int primary key not null , nazwisko_nauczyciela char(30) not null, imie_nauczyciela char(20) not null)";
     static String SQLcreatePrzedmiot = "create table PRZEDMIOT (id int primary key not null, nazwa_przedmiotu char(20) not null)";
     static String SQLcreateUczen = "create table UCZEN (id int primary key not null, nazwisko_ucznia char(30) not null, imie_ucznia char(20) not null)";
@@ -10,21 +10,19 @@ public class SetUpDBContstraintsON {
             "CONSTRAINT idu FOREIGN KEY (idu) REFERENCES UCZEN (id)," +
             "CONSTRAINT ido FOREIGN KEY (ido) REFERENCES OCENA (id))";
 
+
     public static String getSQLcreateNauczyciel() {
         return SQLcreateNauczyciel;
     }
     public static String getSQLcreatePrzedmiot() {
         return SQLcreatePrzedmiot;
     }
-
     public static String getSQLcreateUczen() {
         return SQLcreateUczen;
     }
-
     public static String getSQLcreateOcena() {
         return SQLcreateOCENA;
     }
-
     public static String getSQLcreateOcenianie() {
         return SQLcreateOCENIANIE;
     }

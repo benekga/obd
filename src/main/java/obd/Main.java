@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
+
         try {
             Connection conn = getConnection();
             Statement stmt = conn.createStatement();
@@ -12,35 +13,22 @@ public class Main {
             createTablesAndConstraints(stmt);
             sampleInserts(stmt);
             printSampleTables(stmt);
-            checkPrimaryKeys(stmt);
 
-            //c 3 2 15 7
-            //Konsola.konsola();
-            //String insert = Konsola.getSQLinsert();
-            //Konsola1 k1 = new Konsola1('c', 3, 2, 15, 7);
+            Konsola k1 = new Konsola();
+            // obiekt służy zbudowaniu SQL insert poprzez okno dialogowe (Scanner) z while loop, który wymusi poprawność wprowadzaonych danych
+            // przy uruchomieniu metody inputNauczyciel przekazuję listę kluczy PK z tabeli nauczyciel,
+            // metoda sprawdzi czy proponowane przez użytkownika idNauczyciela jest na liście kluczy głównych tabeli nauczyciel (= klucz obcy na tabeli ocenianie).
 
-            Konsola1 k1 = Konsola1.input();
-            String insert = k1.toString();
+            k1.inputRodzaj();
+            k1.inputNauczyciel(CheckKeys("NAUCZYCIEL", stmt));
+            k1.inputPrzedmiot(CheckKeys( "PRZEDMIOT", stmt));
+            k1.inputUczen(CheckKeys(     "UCZEN", stmt));
+            k1.inputOcena(CheckKeys( "OCENA", stmt));
+            System.out.println("Utworzony SQL insert wygląda tak: \n"+  k1.toString());
 
-            System.out.println(insert);
-            stmt.execute(insert);
-            stmt.execute("commit");
-
-            String SQLcheck = "select concat (imie_ucznia, nazwisko_ucznia) uczen, wartosc_opisowa otrzymal_ocenę, rodzaj_oceny, nazwa_przedmiotu z_przedniotu, concat(imie_nauczyciela, nazwisko_nauczyciela) wystawil \n" +
-                    "from OCENIANIE o join NAUCZYCIEL n on o.idn = n.id join UCZEN u on o.idu = u.id join OCENA c on o.ido = c.id join PRZEDMIOT P on o.idp = p.id\n";
-
-            System.out.println("\n ---tabela ocenianie---");
-            ResultSet rs;
-            rs = stmt.executeQuery("select * from OCENIANIE");
-            while (rs.next())
-                System.out.println(rs.getString(1) + "  " + rs.getString(2) + "" + rs.getString(3) + "" + rs.getString(4) + "" + rs.getString(5));
-
-
-            System.out.println("\n --- uczen                              otrzymal_ocenę       rodzaj_oceny       z_przedmiotu      wystawił nauczyciel---");
-            rs = stmt.executeQuery(SQLcheck);
-            while (rs.next())
-                System.out.println(rs.getString(1) + " " + rs.getString(2) + " " + rs.getString(3) + " " + rs.getString(4) + " " + rs.getString(5));
-
+            String SQLinsert = k1.toString();
+            stmt.executeQuery(SQLinsert);
+            insertsConfirmation(stmt);
 
             conn.close();
 
@@ -49,7 +37,24 @@ public class Main {
             System.out.println(e);
         }
 
+    }
 
+    private static void insertsConfirmation(Statement stmt) throws SQLException {
+        String SQLcheck = "select  'UCZEŃ ' || imie_ucznia || nazwisko_ucznia as uczen, " +
+                "'OTRZYMAŁ OCENĘ ' || wartosc_opisowa, 'TYPU ' ||  rodzaj_oceny, 'Z PRZEDMIOTU ' || nazwa_przedmiotu, " +
+                "'WYSTAWIŁ NAUCZYCIEL ' || imie_nauczyciela || nazwisko_nauczyciela " +
+                "from OCENIANIE o join NAUCZYCIEL n on o.idn = n.id join UCZEN u on o.idu = u.id join OCENA c on o.ido = c.id join PRZEDMIOT P on o.idp = p.id";
+
+        System.out.println("\n ---tabela ocenianie---");
+        ResultSet rs;
+        rs = stmt.executeQuery("select * from OCENIANIE");
+        while (rs.next())
+            System.out.println(rs.getString(1) + "|" + rs.getString(2) + "|" + rs.getString(3) + "|" + rs.getString(4) + "|" + rs.getString(5));
+
+
+        rs = stmt.executeQuery(SQLcheck);
+        while (rs.next())
+            System.out.println(rs.getString(1) + " " + rs.getString(2) + " " + rs.getString(3) + " " + rs.getString(4) + " " + rs.getString(5));
     }
 
     private static void printSampleTables(Statement stmt) throws SQLException {
@@ -90,12 +95,14 @@ public class Main {
     }
 
     private static void createTablesAndConstraints(Statement stmt) throws SQLException {
-        stmt.execute(SetUpDBContstraintsON.getSQLcreateNauczyciel());
-        stmt.execute(SetUpDBContstraintsON.getSQLcreatePrzedmiot());
-        stmt.execute(SetUpDBContstraintsON.getSQLcreateUczen());
-        stmt.execute(SetUpDBContstraintsON.getSQLcreateOcena());
-        stmt.execute(SetUpDBContstraintsON.getSQLcreateOcenianie());
+        stmt.execute(SetUpDBwithConstraints.getSQLcreateNauczyciel());
+        stmt.execute(SetUpDBwithConstraints.getSQLcreatePrzedmiot());
+        stmt.execute(SetUpDBwithConstraints.getSQLcreateUczen());
+        stmt.execute(SetUpDBwithConstraints.getSQLcreateOcena());
+        stmt.execute(SetUpDBwithConstraints.getSQLcreateOcenianie());
     }
+
+
 
     private static void setupDropTables(Statement stmt) throws SQLException {
         stmt.execute("drop table OCENIANIE");
@@ -105,17 +112,6 @@ public class Main {
         stmt.execute("drop table OCENA");
     }
 
-    private static void checkPrimaryKeys(Statement stmt) {
-        List<Integer> kluczeNauczyciel = CheckKeys("NAUCZYCIEL", stmt);
-        List<Integer> kluczePrzedmiot = CheckKeys( "PRZEDMIOT ", stmt);
-        List<Integer> kluczeUczen = CheckKeys(     "UCZEN     ", stmt);
-        List<Integer> kluczeOcena = CheckKeys(     "OCENA     ", stmt);
-
-        System.out.println("\ndopuszczalne wartości ID w tabeli NAUCZYCIEL: "+kluczeNauczyciel.toString());
-        System.out.println("dopuszczalne wartości ID w tabeli PRZEDMIOT: "+kluczePrzedmiot.toString());
-        System.out.println("dopuszczalne wartości ID w tabeli UCZEN: "+kluczeUczen.toString());
-        System.out.println("dopuszczalne wartości ID w tabeli OCENA: "+kluczeOcena.toString());
-    }
 
     private static Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("oracle.jdbc.driver.OracleDriver");
